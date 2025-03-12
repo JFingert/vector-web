@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="./node_modules/imagetracerjs/imagetracer_v1.2.6.js"></script>
+	<style type="text/css">
+
+		button, input, select {
+		  align-items: center;
+		  background-color: #fff;
+		  border-radius: 12px;
+		  box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
+		  box-sizing: border-box;
+		  color: #121212;
+		  cursor: pointer;
+		  display: inline-flex;
+		  flex: 1 1 auto;
+		  font-family: Inter,sans-serif;
+		  font-size: 1.2rem;
+		  font-weight: 700;
+		  justify-content: center;
+		  line-height: 1;
+		  margin: 0;
+		  outline: none;
+		  padding: 1rem 1.2rem;
+		  text-align: center;
+		  text-decoration: none;
+		  transition: box-shadow .2s,-webkit-box-shadow .2s;
+		  white-space: nowrap;
+		  border: 0;
+		  user-select: none;
+		  -webkit-user-select: none;
+		  touch-action: manipulation;
+		}
+
+		button:hover {
+		  box-shadow: #121212 0 0 0 3px, transparent 0 0 0 0;
+		}
+
+		#loader_container {
+			margin-left: 50%;
+			position: absolute;
+			top: 50%;
+			display: none;
+		}
+
+		/* HTML: <div class="loader"></div> */
+		#loader {
+		  width: 100px;
+		  aspect-ratio: 1;
+		  display: grid;
+		  animation: l14 4s infinite;
+		  /*display: none;*/
+		}
+		#loader::before,
+		#loader::after {    
+		  content: "";
+		  grid-area: 1/1;
+		  border: 8px solid;
+		  border-radius: 50%;
+		  border-color: red red #0000 #0000;
+		  mix-blend-mode: darken;
+		  animation: l14 1s infinite linear;
+		}
+		#loader::after {
+		  border-color: #0000 #0000 blue blue;
+		  animation-direction: reverse;
+		}
+		@keyframes l14{ 
+		  100%{transform: rotate(1turn)}
+		}
+	</style>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+<body>
+	<div id="loader_container">
+		<div id="loader"></div>
+	</div>
+	<h1>Convert Image to SVG</h1>
+	<form enctype="multipart/form-data" action="/upload/image" method="post">
+    <input id="upload" type="file" onchange="previewFile()" />
+	</form>
+	<h3>ORIGINAL:</h3>
+	<img id="preview" src="" height="200">
+
+	<hr />
+
+	<h3>Style Options:</h3>
+	<select id="svgOptions">
+		<option>default</option>
+		<option>posterized1</option>
+		<option>posterized2</option>
+		<option>posterized3</option>
+		<option>curvy</option>
+		<option>sharp</option>
+		<option>detailed</option>
+		<option>smoothed</option>
+		<option>grayscale</option>
+		<option>fixedpalette</option>
+		<option>randomsampling1</option>
+		<option>randomsampling2</option>
+		<option>artistic1</option>
+		<option>artistic2</option>
+		<option>artistic3</option>
+		<option>artistic4</option>
+	</select>
+	<br />
+	<button onclick="processImage()">Process Image</button>
+	<button onclick="downloadSVG()">Download SVG</button>
+
+	
+
+	<p>SVG:</p>
+	<div id="svgContainer"></div>
+
+
+</body>
+	<script type="text/javascript">
+		function previewFile() {
+			let url
+			let file
+		  const preview = document.getElementById('preview');
+		  file = document.getElementById('upload').files[0];
+		  const reader = new FileReader();
+
+		  reader.addEventListener('load', function () {
+		    preview.src = reader.result;
+		  }, false);
+
+		  if (file) {
+		    reader.readAsDataURL(file);
+		  }
+
+		  reader.onload =  function(e){
+			    localStorage.setItem('fileUrl', e.target.result);
+	    };
+		}
+
+		function processImage() {
+			const loader = document.getElementById('loader_container')
+			loader.style.display = "grid";
+			console.log("loader on")
+			setTimeout(() => {
+			  console.log("Delayed for 1 second.");
+				const container = document.getElementById('svgContainer')
+				container.innerHTML = '';
+			  const url = localStorage.getItem('fileUrl');
+				const style = document.getElementById('svgOptions').value || 'default';
+				ImageTracer.imageToSVG(
+				    url,
+				    function(svgstr){
+				    	ImageTracer.appendSVGString( svgstr, 'svgContainer' );
+							loader.style.display = "none";
+							console.log("loader off")
+				    },
+				    style
+				);
+			}, 500);
+
+		}
+
+		function downloadSVG() {
+		  const svg = document.getElementById('svgContainer');
+			const svgData = svg.outerHTML;
+			const svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+			const svgUrl = URL.createObjectURL(svgBlob);
+			const downloadLink = document.createElement("a");
+			downloadLink.href = svgUrl;
+			downloadLink.download = "SVG_download.svg";
+			document.body.appendChild(downloadLink);
+			downloadLink.click();
+			document.body.removeChild(downloadLink);
+		}
+	</script>
+</html>
