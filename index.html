@@ -3,8 +3,14 @@
 <head>
 	<script src="main.js"></script>
 	<style type="text/css">
-
-		button, input, select {
+		h1 {
+			text-align: center;
+			font-family: helvetica;
+		}
+		* {
+			font-family: helvetica;
+		}
+		button {
 		  align-items: center;
 		  background-color: #fff;
 		  border-radius: 12px;
@@ -43,13 +49,11 @@
 			display: none;
 		}
 
-		/* HTML: <div class="loader"></div> */
 		#loader {
 		  width: 100px;
 		  aspect-ratio: 1;
 		  display: grid;
 		  animation: l14 4s infinite;
-		  /*display: none;*/
 		}
 		#loader::before,
 		#loader::after {    
@@ -68,6 +72,10 @@
 		@keyframes l14{ 
 		  100%{transform: rotate(1turn)}
 		}
+
+		#preview_container, #svg_section {
+			display: none;
+		}
 	</style>
 	<meta charset="utf-8">
 	<title></title>
@@ -76,42 +84,47 @@
 	<div id="loader_container">
 		<div id="loader"></div>
 	</div>
+
 	<h1>Convert Image to SVG</h1>
+
 	<form enctype="multipart/form-data" action="/upload/image" method="post">
     <input id="upload" type="file" onchange="previewFile()" />
 	</form>
-	<h3>ORIGINAL:</h3>
-	<img id="preview" src="" height="200">
+	<div id="preview_container">
+		<h3>ORIGINAL:</h3>
+		<img id="preview" src="" height="200">
+
+		<h3>Style Options:</h3>
+		<select id="svgOptions">
+			<option>default</option>
+			<option>posterized1</option>
+			<option>posterized2</option>
+			<option>posterized3</option>
+			<option>curvy</option>
+			<option>sharp</option>
+			<option>detailed</option>
+			<option>smoothed</option>
+			<option>grayscale</option>
+			<option>fixedpalette</option>
+			<option>randomsampling1</option>
+			<option>randomsampling2</option>
+			<option>artistic1</option>
+			<option>artistic2</option>
+			<option>artistic3</option>
+			<option>artistic4</option>
+		</select>
+		<br />
+		<button onclick="processImage()">Process Image</button>
+	</div>
 
 	<hr />
 
-	<h3>Style Options:</h3>
-	<select id="svgOptions">
-		<option>default</option>
-		<option>posterized1</option>
-		<option>posterized2</option>
-		<option>posterized3</option>
-		<option>curvy</option>
-		<option>sharp</option>
-		<option>detailed</option>
-		<option>smoothed</option>
-		<option>grayscale</option>
-		<option>fixedpalette</option>
-		<option>randomsampling1</option>
-		<option>randomsampling2</option>
-		<option>artistic1</option>
-		<option>artistic2</option>
-		<option>artistic3</option>
-		<option>artistic4</option>
-	</select>
-	<br />
-	<button onclick="processImage()">Process Image</button>
-	<button onclick="downloadSVG()">Download SVG</button>
+	<div id="svg_section">
+		<button onclick="downloadSVG()">Download SVG</button>
+		<p>SVG:</p>
+		<div id="svgContainer"></div>
+	</div>
 
-	
-
-	<p>SVG:</p>
-	<div id="svgContainer"></div>
 
 
 </body>
@@ -125,6 +138,9 @@
 
 		  reader.addEventListener('load', function () {
 		    preview.src = reader.result;
+  		  const preview_container = document.getElementById('preview_container');
+  		  preview_container.style.display = "block";
+
 		  }, false);
 
 		  if (file) {
@@ -139,9 +155,10 @@
 		function processImage() {
 			const loader = document.getElementById('loader_container')
 			loader.style.display = "grid";
-			console.log("loader on")
+			const svgSection = document.getElementById('svg_section')
+			svgSection.style.display = "block";
+
 			setTimeout(() => {
-			  console.log("Delayed for 1 second.");
 				const container = document.getElementById('svgContainer')
 				container.innerHTML = '';
 			  const url = localStorage.getItem('fileUrl');
@@ -151,7 +168,6 @@
 				    function(svgstr){
 				    	ImageTracer.appendSVGString( svgstr, 'svgContainer' );
 							loader.style.display = "none";
-							console.log("loader off")
 				    },
 				    style
 				);
