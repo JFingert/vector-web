@@ -76,24 +76,32 @@
 		#preview_container, #svg_section {
 			display: none;
 		}
+
+		.desc {
+			color: blue;
+			font-weight: bold;
+		}
 	</style>
 	<meta charset="utf-8">
-	<title></title>
+	<title>Convert YourImage to SVG FREE!</title>
+	<meta name="description" content="Need to convert an image to an SVG? No problem, we can do it for free!">
 </head>
 <body>
 	<div id="loader_container">
 		<div id="loader"></div>
 	</div>
 
-	<h1>Convert Image to SVG</h1>
+	<h1>Convert Your Image to SVG</h1>
 
+	<p class="desc">It's easy. Just upload here.</p>
 	<form enctype="multipart/form-data" action="/upload/image" method="post">
     <input id="upload" type="file" onchange="previewFile()" />
 	</form>
 	<div id="preview_container">
 		<h3>ORIGINAL:</h3>
-		<img id="preview" src="" height="200">
+		<img id="preview" alt="image preview" src="" height="200">
 
+		<p class="desc">Then choose your style.</p>
 		<h3>Style Options:</h3>
 		<select id="svgOptions">
 			<option>default</option>
@@ -120,6 +128,7 @@
 	<hr />
 
 	<div id="svg_section">
+		<p class="desc">And download!</p>
 		<button onclick="downloadSVG()">Download SVG</button>
 		<p>SVG:</p>
 		<div id="svgContainer"></div>
